@@ -1,0 +1,6 @@
+github_token: "your_github_token"
+db_url: "sqlite:///github_sentinel.db"
+notification:
+  method: "email"
+  email: "your_email@example.com"
+  frequency: "daily"
