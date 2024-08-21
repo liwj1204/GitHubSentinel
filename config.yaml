@@ -1,4 +1,3 @@
-github_token: "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"
 db_url: "sqlite:///github_sentinel.db"
 notification:
   method: "email"
