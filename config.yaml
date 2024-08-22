@@ -1,5 +1,6 @@
 db_url: "sqlite:///github_sentinel.db"
 notification:
   method: "email"
-  email: "13801299546@139.com"
+  email: "your_email@example.com"
   frequency: "daily"
+subscriptions_file: "subscriptions.json"

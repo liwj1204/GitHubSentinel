@@ -7,7 +7,7 @@ from NotificationSystem import NotificationSystem
 from ReportGenerator import ReportGenerator
 from Scheduler import Scheduler
 import threading
-
+from LLMClient import LLMClient
 def print_help():
     help_text = """
 GitHub Sentinel Help:
@@ -40,9 +40,9 @@ def check_updates_and_notify(subscription_manager, update_fetcher, report_genera
     report = report_generator.generate_report()
     notification_system.send_notification(report)
 
-def interactive_menu(subscription_manager, update_fetcher, report_generator, notification_system):
+def interactive_menu(subscription_manager, update_fetcher, report_generator, notification_system, github_api_client):
     while True:
-        command = input("Enter command (add, remove, list, fetch, help, exit): ").strip().lower()
+        command = input("Enter command (add, remove, list, fetch, export, generate, help, exit): ").strip().lower()
 
         if command == "add":
             repo_url = input("Enter repository URL to subscribe: ").strip()
@@ -57,13 +57,20 @@ def interactive_menu(subscription_manager, update_fetcher, report_generator, not
                 print(f"- {repo}")
         elif command == "fetch":
             check_updates_and_notify(subscription_manager, update_fetcher, report_generator, notification_system)
+        elif command == "export":
+            repo_url = input("Enter repository URL to export daily progress: ").strip()
+            daily_report_file = github_api_client.export_daily_progress(repo_url)
+        elif command == "generate":
+            report_file = input("Enter the path of the daily report file to generate a formal report: ").strip()
+            report_generator.generate_formal_report(report_file)
         elif command == "help":
             print_help()
         elif command == "exit":
             print("Exiting GitHub Sentinel...")
             break
         else:
-            print("Unknown command. Please enter 'add', 'remove', 'list', 'fetch', 'help', or 'exit'.")
+            print("Unknown command. Please enter 'add', 'remove', 'list', 'fetch', 'export', 'generate', 'help', or 'exit'.")
+
 
 def start_scheduler(scheduler, subscription_manager, update_fetcher, report_generator, notification_system):
     scheduler.schedule_daily(lambda: check_updates_and_notify(subscription_manager, update_fetcher, report_generator, notification_system))
@@ -81,11 +88,15 @@ def main():
     # Initialize GitHub API client
     github_api_client = GitHubAPIClient(config_manager.get('github_token'))
 
+    # Initialize LLM client
+    llm_client = LLMClient()
+
     # Initialize core modules
-    subscription_manager = SubscriptionManager(db_client)
+    subscriptions_file = config_manager.get('subscriptions_file', 'subscriptions.json')
+    subscription_manager = SubscriptionManager(subscriptions_file)
     update_fetcher = UpdateFetcher(github_api_client, db_client)
     notification_system = NotificationSystem(config_manager)
-    report_generator = ReportGenerator(db_client)
+    report_generator = ReportGenerator(db_client, llm_client)
 
     # Start scheduler in a separate thread
     scheduler = Scheduler()
@@ -97,7 +108,7 @@ def main():
     print_help()
 
     # Start interactive command loop
-    interactive_menu(subscription_manager, update_fetcher, report_generator, notification_system)
+    interactive_menu(subscription_manager, update_fetcher, report_generator, notification_system, github_api_client)
 
 if __name__ == '__main__':
     main()
