@@ -1,0 +1,10 @@
+[
+    {
+        "role": "system",
+        "content": "You are a helpful assistant."
+    },
+    {
+        "role": "user",
+        "content": "\n        Summarize the following GitHub repository daily progress:\n\n        Issues:\n        ## Issues\nNo issues found.\n\n        Pull Requests:\n        ## Pull Requests\nNo pull requests found.\n        "
+    }
+]

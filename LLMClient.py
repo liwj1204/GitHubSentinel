@@ -1,13 +1,19 @@
-import openai
+from openai import OpenAI
 import os
 import json
 class LLMClient:
     def __init__(self):
-        openai.api_key = os.getenv('OPENAI_API_KEY')
-        if not openai.api_key:
+        api_key = os.getenv('OPENAI_API_KEY')
+        if not api_key:
             raise ValueError("OpenAI API key is not set. Please set the OPENAI_API_KEY environment variable.")
+        self.client = OpenAI(
+            #302.AI后台-API超市-API列表 生成的API KEY
+            api_key=api_key,
+            #302.AI的base-url
+            base_url="https://api.302.ai/v1"
+        )
 
-    def summarize_report(self, issues, pull_requests,, dry_run=False):
+    def summarize_report(self, issues, pull_requests, dry_run=False):
         content = f"""
         Summarize the following GitHub repository daily progress:
 
@@ -28,9 +34,9 @@ class LLMClient:
                 json.dump(messages, f, indent=4, ensure_ascii=False)
             return "DRY RUN"
         
-        response = openai.ChatCompletion.create(
+        response = self.client.chat.completions.create(
             model="gpt-4",
             messages=messages
         )
-        summary = response['choices'][0]['message']['content'].strip()
+        summary = response.choices[0].message.content
         return summary

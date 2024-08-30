@@ -15,7 +15,7 @@ class ReportGenerator:
         issues = content[issues_start:pull_requests_start].strip()
         pull_requests = content[pull_requests_start:].strip()
 
-        summary = self.llm_client.summarize_report(issues, pull_requests,dry_run=True)
+        summary = self.llm_client.summarize_report(issues, pull_requests,dry_run=False)
 
         # Save the summarized report
         report_file_name = daily_report_file.replace('.md', '_formal.md')
